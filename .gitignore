@@ -1,0 +1,30 @@
+# Go build
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.cov
+
+# Dependency directories (remove the comment below if you use Go modules)
+# vendor/
+
+# Go workspace file
+*.code-workspace
+
+# IDE/editor files
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Logs
+*.log
+
+# PQMagic C build output (如有)
+/PQMagic-main/build/
