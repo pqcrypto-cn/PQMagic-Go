@@ -18,21 +18,26 @@ func main() {
 	fmt.Println("---------------------------------")
 
 	fmt.Println("\n--- 测试 ML-KEM 768 ---")
-	kemPk, kemSk, err := pqmagic.KeyPairMlKem768()
+	fmt.Println("# taking ML_KEM_768 as an example")
+	kem := pqmagic.NewKEM("ML_KEM_768")
+	
+	
+	pk, sk, err := kem.KeyPair()
 	if err != nil {
 		log.Fatalf("ML-KEM KeyPair 失败: %v", err)
 	}
-	fmt.Printf("ML-KEM 公钥长度: %d, 私钥长度: %d\n", len(kemPk), len(kemSk))
+	fmt.Printf("ML-KEM 公钥长度: %d, 私钥长度: %d\n", len(pk), len(sk))
 
-	ct, ssEnc, err := pqmagic.EncapsulateMlKem768(kemPk)
+	
+	ct, ssEnc, err := kem.Encaps(pk)
 	if err != nil {
 		log.Fatalf("ML-KEM Encapsulate 失败: %v", err)
 	}
 	fmt.Printf("ML-KEM 密文长度: %d, 封装的共享密钥长度: %d\n", len(ct), len(ssEnc))
 
-	ssDec, err := pqmagic.DecapsulateMlKem768(kemSk, ct)
+	
+	ssDec, err := kem.Decaps(sk, ct)
 	if err != nil {
-
 		if err == pqmagic.ErrPqmagicDecapsulationFailed {
 			log.Fatalf("ML-KEM Decapsulate 失败 (这是预期的错误类型，但操作本身失败了): %v", err)
 		} else {
@@ -47,30 +52,35 @@ func main() {
 	fmt.Println("ML-KEM 封装/解封装成功，共享密钥匹配。")
 
 	fmt.Println("\n--- 测试 ML-DSA 65 ---")
-	sigPk, sigSk, err := pqmagic.KeyPairMlDsa65()
+	
+	dsa := pqmagic.NewDSA("ML_DSA_65")
+	
+	
+	sigPk, sigSk, err := dsa.KeyPair()
 	if err != nil {
 		log.Fatalf("ML-DSA KeyPair 失败: %v", err)
 	}
 	fmt.Printf("ML-DSA 公钥长度: %d, 私钥长度: %d\n", len(sigPk), len(sigSk))
 
 	message := []byte("这是要签名的消息。")
-
 	context := []byte{}
 
-	signature, err := pqmagic.SignMlDsa65(sigSk, message, context)
+	
+	signature, err := dsa.Sign(sigSk, message, context)
 	if err != nil {
 		log.Fatalf("ML-DSA Sign 失败: %v", err)
 	}
 	fmt.Printf("ML-DSA 签名长度: %d\n", len(signature))
 
-	err = pqmagic.VerifyMlDsa65(sigPk, message, signature, context)
+	
+	err = dsa.Verify(sigPk, message, signature, context)
 	if err != nil {
 		log.Fatalf("ML-DSA Verify 意外失败: %v", err)
 	}
 	fmt.Println("ML-DSA 验签成功 (签名正确)。")
 
 	tamperedMessage := []byte("这不是要签名的消息。")
-	err = pqmagic.VerifyMlDsa65(sigPk, tamperedMessage, signature, context)
+	err = dsa.Verify(sigPk, tamperedMessage, signature, context)
 	if err == nil {
 		log.Fatalf("ML-DSA Verify 对篡改的消息意外成功！")
 	} else if err == pqmagic.ErrPqmagicVerificationFailed {
@@ -86,7 +96,7 @@ func main() {
 	} else {
 		log.Println("警告：签名为空，无法篡改第一个字节。")
 	}
-	err = pqmagic.VerifyMlDsa65(sigPk, message, tamperedSignature, context)
+	err = dsa.Verify(sigPk, message, tamperedSignature, context)
 	if err == nil {
 		log.Fatalf("ML-DSA Verify 对篡改的签名意外成功！")
 	} else if err == pqmagic.ErrPqmagicVerificationFailed {

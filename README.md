@@ -27,6 +27,32 @@
     go run ./examples/main.go # 运行示例
     ```
 
-5. 扩展封装:
+5. 使用 PQMagic Go 封装:
+   - 可使用两种调用风格：
+
+   a. 对象风格 API (推荐):
+    ```go
+    
+    kem := pqmagic.NewKEM("ML_KEM_768")
+    pk, sk, err := kem.KeyPair()
+    ct, ssEnc, err := kem.Encaps(pk)
+    ssDec, err := kem.Decaps(sk, ct)
+
+    
+    dsa := pqmagic.NewDSA("ML_DSA_65")
+    pk, sk, err := dsa.KeyPair()
+    signature, err := dsa.Sign(sk, message, context)
+    err = dsa.Verify(pk, message, signature, context)
+    ```
+
+   b. 函数风格 API (向后兼容):
+    ```go
+    pk, sk, err := pqmagic.KeyPairMlKem768()
+    ct, ssEnc, err := pqmagic.EncapsulateMlKem768(pk)
+    ssDec, err := pqmagic.DecapsulateMlKem768(sk, ct)
+    ```
+
+6. 扩展封装:
    - 按照 'pqmagic.go' 中的模式添加更多函数的封装。
    - 在 'pqmagic_const.go' 中添加对应的常量。
+   - 扩展 KEM 或 DSA 结构体以支持更多算法。

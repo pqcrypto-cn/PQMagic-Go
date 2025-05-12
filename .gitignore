@@ -28,3 +28,7 @@ bin/
 
 # PQMagic C build output (如有)
 /PQMagic-main/build/
+
+pqmagic_api.h
+parse_api_header.py
+api.json
